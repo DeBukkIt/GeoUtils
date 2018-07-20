@@ -1,0 +1,1 @@
+This is the root folder of the OSRM server. Install your OSRM server here. The osrm-routed.exe file must be inside this root folder in order to work with the GeoUtils library.
