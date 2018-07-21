@@ -82,13 +82,27 @@ public class GeoLocation implements Serializable {
 	public GeoLocation(double latitude, double longitude, String streetAndNumber, String zipCode, String neighborhood,
 			String city, String county, String state, String country) {
 		this(latitude, longitude);
-		this.streetAndNumber = streetAndNumber.trim();
-		this.zipCode = zipCode.trim();
-		this.neighborhood = neighborhood.trim();
-		this.city = city.trim();
-		this.county = county.trim();
-		this.state = state.trim();
-		this.country = country.trim();
+		if (streetAndNumber != null) {
+			this.streetAndNumber = streetAndNumber.trim();
+		}
+		if (zipCode != null) {
+			this.zipCode = zipCode.trim();
+		}
+		if (neighborhood != null) {
+			this.neighborhood = neighborhood.trim();
+		}
+		if (city != null) {
+			this.city = city.trim();
+		}
+		if (county != null) {
+			this.county = county.trim();
+		}
+		if (state != null) {
+			this.state = state.trim();
+		}
+		if (country != null) {
+			this.country = country.trim();
+		}
 	}
 
 	/**
