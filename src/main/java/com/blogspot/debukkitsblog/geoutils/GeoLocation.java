@@ -246,7 +246,7 @@ public class GeoLocation implements Serializable {
 			return name;
 		}
 
-		// else return an address
+		// else return an address, if address is available
 		StringBuilder builder = new StringBuilder(160);
 		if (streetAndNumber != null && !streetAndNumber.isEmpty()) {
 			builder.append(streetAndNumber);
@@ -277,7 +277,14 @@ public class GeoLocation implements Serializable {
 		if (country != null && !country.isEmpty()) {
 			builder.append(", " + country);
 		}
-		return builder.toString().replaceFirst("^, ", "");
+		String fullAddress = builder.toString().replaceFirst("^, ", "");
+		
+		if(!fullAddress.isEmpty()) {
+			return fullAddress;
+		}
+		
+		// else return the coordinates
+		return "(" + latitude + "|" + longitude + ")";
 	}
 
 }

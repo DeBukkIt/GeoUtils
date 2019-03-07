@@ -24,12 +24,36 @@ import org.json.JSONObject;
  */
 public class GeoRouter {
 
+	private boolean silentMode;
+
 	/**
 	 * Constructs a new router. This will start a local OSRM route server
 	 * (osrm-routed.exe) if present in the resources/osrm_sever directory.
 	 */
+	@Deprecated
 	public GeoRouter() {
-		startOSRMRouteServer();
+		this(true);
+	}
+
+	/**
+	 * Constructs a new router. If the parameter is set to {@code true}, the program
+	 * will try to start a local OSRM route server (osrm-routed.exe) if such an
+	 * executable is present in the resources/osrm_sever directory.
+	 */
+	public GeoRouter(boolean useLocalOSRMServer) {
+		silentMode = true;
+		if (useLocalOSRMServer) {
+			startOSRMRouteServer();
+		}
+	}
+
+	/**
+	 * Toggles the output mode (do or do no output)
+	 * 
+	 * @param silent true for output; false for silence
+	 */
+	public void setSilentmode(boolean silent) {
+		this.silentMode = silent;
 	}
 
 	/**
@@ -57,7 +81,8 @@ public class GeoRouter {
 					String line = "";
 					try {
 						while ((line = reader.readLine()) != null) {
-							System.out.println("[OSRM-Route-Server] " + line);
+							if (!silentMode)
+								System.out.println("[OSRM-Route-Server] " + line);
 						}
 					} catch (Exception e) {
 						System.err.println("[OSRM-Route-Server] " + e.getMessage());
@@ -71,7 +96,8 @@ public class GeoRouter {
 					String line = "";
 					try {
 						while ((line = reader.readLine()) != null) {
-							System.out.println("[OSRM-Route-Server] " + line);
+							if (!silentMode)
+								System.out.println("[OSRM-Route-Server] " + line);
 						}
 					} catch (Exception e) {
 						System.err.println("[OSRM-Route-Server] " + e.getMessage());
@@ -124,10 +150,8 @@ public class GeoRouter {
 	/**
 	 * Calculates the recommended route between <i>from</i> and <i>to</i>
 	 * 
-	 * @param from
-	 *            The start
-	 * @param to
-	 *            The destination
+	 * @param from The start
+	 * @param to   The destination
 	 * @return The recommended route as GeoRoute object
 	 */
 	public GeoRoute calculateRoute(GeoLocation from, GeoLocation to) {
@@ -138,12 +162,9 @@ public class GeoRouter {
 	 * Calculates the recommended route between <i>from</i> and <i>to</i> using a
 	 * GeoCache to speed up queries and spare external APIs.
 	 * 
-	 * @param from
-	 *            The start
-	 * @param to
-	 *            The destination
-	 * @param cache
-	 *            The GeoCache to be used
+	 * @param from  The start
+	 * @param to    The destination
+	 * @param cache The GeoCache to be used
 	 * @return The recommended route as GeoRoute object
 	 */
 	public GeoRoute calculateRoute(GeoLocation from, GeoLocation to, GeoCache cache) {
@@ -161,7 +182,8 @@ public class GeoRouter {
 		if (cache != null) {
 			GeoRoute fromCache = cache.cacheReadRoute(from, to);
 			if (fromCache != null) {
-				System.out.println("Using cache to route from " + from + " to " + to);
+				if (!silentMode)
+					System.out.println("Using cache to route from " + from + " to " + to);
 				return fromCache;
 			}
 		} else {
@@ -200,15 +222,12 @@ public class GeoRouter {
 	 * Sends a request to the local OSRM route server (osrm-routed.exe) running on
 	 * port 7880, if any does so, and returns the route found by it.
 	 * 
-	 * @param from
-	 *            The start
-	 * @param to
-	 *            The destination
+	 * @param from The start
+	 * @param to   The destination
 	 * @return The recommended route between start and destination found - or null
 	 *         if no route was found
-	 * @throws IOException
-	 *             if something went wrong sending the request to the local OSRM
-	 *             route server
+	 * @throws IOException if something went wrong sending the request to the local
+	 *                     OSRM route server
 	 */
 	private GeoRoute requestUsingOSRMLocal(GeoLocation from, GeoLocation to) throws IOException {
 		GeoRoute result = new GeoRoute();
@@ -259,15 +278,12 @@ public class GeoRouter {
 	 * Sends a request to the public Demo OSRM route server via the Internet and
 	 * returns the route found by it.
 	 * 
-	 * @param from
-	 *            The start
-	 * @param to
-	 *            The destination
+	 * @param from The start
+	 * @param to   The destination
 	 * @return The recommended route between start and destination found - or null
 	 *         if no route was found
-	 * @throws IOException
-	 *             if something went wrong sending the request to the public Demo
-	 *             OSRM route server
+	 * @throws IOException if something went wrong sending the request to the public
+	 *                     Demo OSRM route server
 	 */
 	private GeoRoute requestUsingOSRMDemo(GeoLocation from, GeoLocation to) throws IOException {
 		GeoRoute result = new GeoRoute();
@@ -318,15 +334,12 @@ public class GeoRouter {
 	 * Sends a request to the OpenRouteService API via the Internet and returns the
 	 * route found by it.
 	 * 
-	 * @param from
-	 *            The start
-	 * @param to
-	 *            The destination
+	 * @param from The start
+	 * @param to   The destination
 	 * @return The recommended route between start and destination found - or null
 	 *         if no route was found
-	 * @throws IOException
-	 *             if something went wrong sending the request to the
-	 *             OpenRouteService API
+	 * @throws IOException if something went wrong sending the request to the
+	 *                     OpenRouteService API
 	 */
 	private GeoRoute requestUsingOpenRouteService(GeoLocation from, GeoLocation to) throws IOException {
 		if (!APIKeyManager.hasAPIKey("openrouteservice")) {
@@ -370,16 +383,13 @@ public class GeoRouter {
 	 * Calculates a duration matrix between destination and every start location
 	 * given using a local OSRM server (if any is running on port 7880)
 	 * 
-	 * @param destination
-	 *            The destination
-	 * @param starts
-	 *            An array of starts
+	 * @param destination The destination
+	 * @param starts      An array of starts
 	 * @return an array of GeoRoutes containing one element of <i>starts</i>, the
 	 *         destination and the calculated duration. The distance of that route
 	 *         is always -2.0f.
-	 * @throws IOException
-	 *             if something went wrong sending the request to the local OSRM
-	 *             server
+	 * @throws IOException if something went wrong sending the request to the local
+	 *                     OSRM server
 	 */
 	public GeoRoute[] calculateMatrix(GeoLocation destination, GeoLocation... starts) throws IOException {
 		if (starts.length < 1) {
@@ -429,8 +439,7 @@ public class GeoRouter {
 	/**
 	 * Finds the GeoRoute with the smallest duration in an array if GeoRoutes
 	 * 
-	 * @param routes
-	 *            The array of GeoRoutes
+	 * @param routes The array of GeoRoutes
 	 * @return The GeoRoute with the smallest duration
 	 */
 	public GeoRoute getShortestRoute(GeoRoute[] routes) {

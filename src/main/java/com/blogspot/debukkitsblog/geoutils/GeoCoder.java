@@ -21,6 +21,8 @@ import org.json.JSONObject;
  */
 public class GeoCoder {
 
+	private static boolean silentMode = true;
+	
 	/**
 	 * Tries to find <i>address</i> on earth. <b>You should use the variant of this
 	 * method providing a GeoCache as the seconds argument to spare the external
@@ -53,7 +55,7 @@ public class GeoCoder {
 		if (cache != null) {
 			GeoLocation fromCache = cache.cacheReadPosition(address);
 			if (fromCache != null) {
-				System.out.println("Using cache to find " + address);
+				if(!silentMode) System.out.println("Using cache to find " + address);
 				return fromCache;
 			}
 		} else {
@@ -63,7 +65,7 @@ public class GeoCoder {
 		GeoLocation result = null;
 		// Try using MapQuest
 		try {
-			System.out.println("Using MapQuest to find " + address);
+			if(!silentMode) System.out.println("Using MapQuest to find " + address);
 			result = requestUsingMapQuest(address);
 			// is the result good enough?
 			if (!isResultPlausible(result)) {
@@ -75,7 +77,7 @@ public class GeoCoder {
 
 			// else try using LocationIQ
 			try {
-				System.out.println("Using LocationIQ to find " + address);
+				if(!silentMode) System.out.println("Using LocationIQ to find " + address);
 				result = requestUsingLocationIQ(address);
 				// is the result good enough?
 				if (!isResultPlausible(result)) {
@@ -247,6 +249,15 @@ public class GeoCoder {
 		}
 
 		return new GeoLocation(lat, lng);
+	}
+	
+	/**
+	 * Toggles the output mode (do or do no output)
+	 * 
+	 * @param silent true for output; false for silence
+	 */
+	public static void setSilentmode(boolean silent) {
+		silentMode = silent;
 	}
 
 }
