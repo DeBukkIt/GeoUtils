@@ -197,7 +197,6 @@ public class GeoRouter {
 			result = requestUsingOSRMLocal(from, to);
 		} catch (Exception e) {
 			System.err.println("Could not find route using OSRMLocal: " + e.getMessage());
-			e.printStackTrace();
 			try {
 				result = requestUsingOSRMDemo(from, to);
 			} catch (Exception e1) {
